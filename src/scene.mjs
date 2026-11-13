@@ -26,7 +26,7 @@ const THEMES = {
 export class Constellation{
   constructor(canvas,onShard,{cinematic=false}={}){
     this.cinematic=cinematic;this.chapter=0;this.cameraOffset=0;this.visible=true;this.canvas=canvas;this.onShard=onShard;this.tags=[1,2,3].map(i=>document.getElementById(`node-${i}`));
-    this.selected=[1,2];this.rotationX=-.22;this.rotationY=.4;this.distance=7.4;this.pressed=false;this.dragged=false;this.time=0;this.last=0;
+    this.selected=[];this.rotationX=-.22;this.rotationY=.4;this.distance=7.4;this.pressed=false;this.dragged=false;this.time=0;this.last=0;
     this.reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;this.nodeCenters=[];this.positions=[[2.45,.78,.3],[-2.3,-.77,.3],[.15,2.09,-.55]];
     this.autoRotate=true;this.showRings=true;this.showParticles=true;this.glowBoost=1.1;this.mode='balanced';this.flash=0;
     this.gl=canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false});
@@ -58,7 +58,7 @@ export class Constellation{
     const theme=THEMES[this.mode]||THEMES.balanced;const flashBoost=1+this.flash*.75;const aspect=this.width/Math.max(this.height,1),proj=perspective(Math.PI/3.05,aspect,.1,50),view=trans(0,0,-this.distance+(this.reduced?0:this.cameraOffset*.48)),scene=this.matScene(),vp=mul(proj,view);this.mvp=mul(vp,scene);
     if(this.showParticles) this.draw(this.meshes.particles,scene,vp,theme.particles,.54,2,gl.POINTS,2.2,flashBoost*.95);
     if(this.showRings){gl.depthMask(false);for(let r=0;r<3;r++){const ringRot=mul(scene,mul(ry(this.time*(r%2?.11:-.08)+r*.9),mul(rx(r*.6+.36),scale(1+r*.14,1+r*.14,1+r*.14))));this.draw(this.meshes.ring,ringRot,vp,theme.rings[r],r===1?.35:.4,1,gl.LINE_STRIP,2,flashBoost)}gl.depthMask(true)}
-    if(this.cinematic && (this.chapter<.5 || this.chapter>1.5)){
+    if(this.cinematic && this.chapter>1.5){
       const review=this.chapter>1.5;
       const spread=Math.max(0,Math.min(1,(this.distance-6.1)/3.1));
       for(let i=0;i<5;i++){
@@ -82,10 +82,11 @@ export class Constellation{
     const split=this.cinematic?Math.max(0,1-Math.abs(this.cameraOffset-1)):0;const core=mul(scene,mul(rz(.17),mul(ry(this.time*.42+this.cameraOffset*.55),scale(1.03-split*.62,1.85-split*1.15,1.03-split*.62))));this.draw(this.meshes.crystal,core,vp,theme.inner,.96,3,gl.TRIANGLES,2,flashBoost);
 
     this.nodeCenters=[];
-    this.positions.forEach((v,i)=>{const rot=mul(rz(this.time*.08+i),ry(this.time*.16+i)),bob=Math.sin(this.time*1.3+i)*.1,model=mul(scene,mul(trans(v[0],v[1]+bob,v[2]),mul(rot,scale(.43+split*.22,.6+split*.32,.43+split*.22))));const bright=this.cinematic?i<2:this.selected.includes(i+1);this.draw(this.meshes.crystal,model,vp,bright?theme.selected:theme.idle,bright?.98:.68,3,gl.TRIANGLES,2,flashBoost*(bright?1.08:1));const p=this.project([v[0],v[1]+bob,v[2]],this.mvp);this.nodeCenters.push(p);const tag=this.cinematic?null:this.tags[i];if(!tag)return;tag.style.left=`${p.x}px`;tag.style.top=`${p.y-30}px`;tag.style.opacity=p.z<1?'1':'.25'});
+    this.positions.forEach((v,i)=>{const rot=mul(rz(this.time*.08+i),ry(this.time*.16+i)),bob=Math.sin(this.time*1.3+i)*.1,model=mul(scene,mul(trans(v[0],v[1]+bob,v[2]),mul(rot,scale(.43+split*.22,.6+split*.32,.43+split*.22))));const bright=this.cinematic?i<2:this.selected.includes(i+1);this.draw(this.meshes.crystal,model,vp,[[.18,.9,1],[.66,.38,1],[1,.3,.65]][i],bright?1:.94,3,gl.TRIANGLES,2,flashBoost*(bright?1.08:1));const p=this.project([v[0],v[1]+bob,v[2]],this.mvp);this.nodeCenters.push(p);const tag=this.cinematic?null:this.tags[i];if(!tag)return;tag.style.left=`${p.x}px`;tag.style.top=`${p.y}px`;tag.style.opacity=p.z<1?'1':'.25'});
     requestAnimationFrame(t=>this.frame(t));
   }
 }
+
 
 
 
