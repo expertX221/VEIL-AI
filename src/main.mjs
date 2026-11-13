@@ -1,5 +1,5 @@
 import {generateKey,splitKey,recoverKey,encryptText,decryptText,redactMarkedSecrets,toBase64,fromBase64,parseShareRecord} from './crypto.mjs';
-import {Constellation} from './scene.mjs';
+import {Universe as Constellation} from './universe.mjs';
 
 const $ = (id) => document.getElementById(id);
 const TEMPLATES = {

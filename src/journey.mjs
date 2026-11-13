@@ -1,61 +1,59 @@
-import { Constellation } from './scene.mjs';
+import { Universe } from './universe.mjs';
 
-const journey = document.querySelector('.journey');
-const canvas = journey.querySelector('canvas');
-const crystal = new Constellation(canvas, () => {}, { cinematic: true });
-const chapters = [...journey.querySelectorAll('[data-chapter]')];
-
-const audio = journey.querySelector('.journey-audio');
-let narrated = -1;
-let active = 0;
+const root = document.querySelector('.universe');
+const scene = new Universe(root.querySelector('canvas'), () => {}, {cinematic:true});
+const chapters = [...root.querySelectorAll('[data-chapter]')];
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const motion = document.getElementById('motion-toggle');
+const voice = document.getElementById('voice-toggle');
+let paused = reduced.matches;
 let narration = false;
-function speak(index) {
-  if (!narration || narrated === index) return;
-  narrated = index;
+let spoken = -1;
+let active = 0;
+scene.setAutoRotate(!paused);
+motion.textContent = paused ? 'Resume motion' : 'Pause motion';
+motion.setAttribute('aria-pressed',String(paused));
+
+function speak() {
+  if(!narration || spoken === active)return;
   speechSynthesis.cancel();
-  const message = new SpeechSynthesisUtterance(chapters[index].querySelector('p:not(.journey-label)').textContent);
-  message.rate = 0.9;
-  speechSynthesis.speak(message);
+  spoken=active;
+  const text=chapters[active].querySelector('.chapter-description').textContent;
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.rate=.91;
+  speechSynthesis.speak(utterance);
 }
-if ('speechSynthesis' in window) {
-  audio.hidden = false;
-  audio.addEventListener('click', () => {
-    narration = !narration;
-    audio.setAttribute('aria-pressed', String(narration));
-    audio.textContent = narration ? 'Narration on' : 'Narration off';
-    if (narration) speak(active);
-    else { speechSynthesis.cancel(); narrated = -1; }
+motion.addEventListener('click',()=>{
+  paused=!paused;
+  scene.setAutoRotate(!paused);
+  motion.textContent=paused?'Resume motion':'Pause motion';
+  motion.setAttribute('aria-pressed',String(paused));
+});
+if('speechSynthesis' in window){
+  voice.hidden=false;
+  voice.addEventListener('click',()=>{
+    narration=!narration;
+    voice.textContent=narration?'Mute narration':'Enable narration';
+    voice.setAttribute('aria-pressed',String(narration));
+    if(narration)speak();
+    else {speechSynthesis.cancel();spoken=-1;}
   });
 }
-function update() {
-  const viewport = window.innerHeight;
-  const progress = Math.max(0, Math.min(chapters.length - 1,
-    -journey.getBoundingClientRect().top / viewport));
-    const index = Math.round(progress);
-  active = index;
-  if (journey.getBoundingClientRect().bottom > 0) speak(index);
-  journey.style.setProperty('--vortex-angle', progress * 120 + 'deg');
-  journey.dataset.scene = String(index);
-  journey.querySelectorAll('.film-set').forEach((set, i) => {
-    set.style.opacity = Math.max(0, 1 - Math.abs(progress - i));
-  });
-  journey.querySelectorAll('.film-links a').forEach((link, i) => {
-    if (i === index) link.setAttribute('aria-current', 'location');
-    else link.removeAttribute('aria-current');
-  });
-  crystal.setMode(['balanced', 'defense', 'alert'][index]);
-  crystal.setChapter(progress);
-  journey.style.setProperty('--journey-progress', progress / (chapters.length - 1));
-  chapters.forEach((chapter, i) => chapter.toggleAttribute('data-current', i === index));
+function update(){
+  const rect=root.getBoundingClientRect();
+  const progress=Math.max(0,Math.min(6,-rect.top/innerHeight));
+  active=Math.round(progress);
+  scene.setChapter(reduced.matches?active:progress);
+  document.getElementById('chapter-status').textContent=chapters[active].querySelector('.chapter-label').textContent;
+  if(rect.bottom<=0 || rect.top>innerHeight){if(narration)speechSynthesis.cancel();}
+  else speak();
 }
-let pending = false;
-addEventListener('scroll', () => {
-  if (pending) return;
-  pending = true;
-  requestAnimationFrame(() => { pending = false; update(); });
-}, { passive: true });
-addEventListener('resize', update);
+let pending=false;
+addEventListener('scroll',()=>{
+  if(pending)return;
+  pending=true;
+  requestAnimationFrame(()=>{pending=false;update();});
+},{passive:true});
+addEventListener('resize',update);
+addEventListener('pagehide',()=>{if('speechSynthesis' in window)speechSynthesis.cancel();});
 update();
-
-
-

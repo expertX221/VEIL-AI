@@ -4,52 +4,29 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#050b1b">
-  <title>VEIL//AI — Private AI Security Cockpit</title>
+  <title>VEIL//AI — Private Intelligence Workspace</title>
   <link rel="stylesheet" href="./src/styles.css">
-</head>
+<link rel="stylesheet" href="./src/universe.css"></head>
 <body>
-  <section class="journey" aria-label="VEIL AI security walkthrough">
-    <nav class="film-nav" aria-label="Walkthrough">
-      <a href="#veil-intro" class="film-brand"><i class="crystal-mark" aria-hidden="true"></i>VEIL AI</a>
-      <div class="film-links"><a href="#veil-intro">Encryption</a><a href="#veil-shares">Key shares</a><a href="#veil-review">AI review</a></div>
-      <a class="film-launch" href="#workspace">Open cockpit</a>
-    </nav>
-    <div class="journey-stage">
-      <div class="film-set film-encryption" aria-hidden="true"></div>
-      <div class="film-set film-shares" aria-hidden="true"></div>
-      <div class="film-set film-review" aria-hidden="true"></div>
-      <div class="journey-vortex" aria-hidden="true"></div><canvas aria-label="Interactive 3D security scene. Drag to orbit."></canvas>
-      <div class="film-shade" aria-hidden="true"></div>
-    </div>
-    <button class="journey-audio" type="button" aria-pressed="false" hidden>Narration off</button><div class="journey-progress" aria-hidden="true"><span></span></div>
-    <div class="journey-chapters">
-      <article id="veil-intro" data-chapter>
-        <p class="journey-label">VEIL // AI</p>
-        <h1>Keep the original in the vault.</h1>
-        <p>VEIL AI encrypts your original input in the browser with AES-GCM. Scroll to follow the vault key from encryption to AI review.</p>
-        <a class="journey-action" href="#workspace">Open cockpit</a>
-      </article>
-      <article id="veil-shares" data-chapter>
-        <p class="journey-label">LOCAL VAULT</p>
-        <h2>Two shares unlock the vault.</h2>
-        <p>The browser encrypts the original text with AES-GCM. Any two of the three Shamir shares can reconstruct the vault key.</p>
-        <a class="journey-action" href="#vault">Try the vault</a>
-      </article>
-      <article id="veil-review" data-chapter>
-        <p class="journey-label">PROVIDER BOUNDARY</p>
-        <h2>Review what the model sees.</h2>
-        <p>Approve the redacted prompt before sending it. The provider can read that prompt. The vault key and original encrypted input stay in the browser during the request.</p>
-        <a class="journey-action" href="#chat">Try secure chat</a>
-      </article>
-    </div>
-  </section>
-  <script type="module" src="./src/journey.mjs"></script>
+  <section class="universe" aria-label="Cryptographic universe">
+    <nav class="universe-nav" aria-label="Main navigation"><a href="#master-key">VEIL <span>AI</span></a><div><a href="#split">The mathematics</a><a href="#gateway">Privacy boundary</a><a href="#workspace">Open workspace ↗</a></div></nav>
+    <div class="universe-stage"><canvas aria-label="Interactive mathematical universe. Drag to orbit, control-scroll to zoom."></canvas><div class="universe-shade"></div></div>
+    <div class="universe-controls"><button id="motion-toggle" aria-pressed="false">Pause motion</button><button id="voice-toggle" aria-pressed="false" hidden>Enable narration</button><span id="chapter-status" aria-live="polite">Local key custody</span></div>
+    <div class="universe-chapters">
+<article id="master-key" data-chapter><p class="chapter-label">LOCAL KEY CUSTODY</p><h1>A universe inside a key.</h1><p class="chapter-description">Follow the mathematics that keeps your original input under your control.</p><small>Key surface markings are illustrative, never actual key material.</small><a class="chapter-link" href="#split">Enter the key ↓</a></article>
+<article id="split" data-chapter><p class="chapter-label">SHAMIR SECRET SHARING</p><h2>One secret. Independent shares.</h2><p class="chapter-description">A random polynomial distributes key material across separate guardians. Two distinct shares recover this demo’s key.</p><small>f(x) = s + ax over a finite field</small></article>
+<article id="network" data-chapter><p class="chapter-label">DISTRIBUTED CUSTODY</p><h2>Different routes. One destination.</h2><p class="chapter-description">Follow the illuminated packets through a graph of independent custodians. Export each guardian file separately in the demo.</p><small>Network animation illustrates distribution; it is not live network traffic.</small></article>
+<article id="gateway" data-chapter><p class="chapter-label">PROVIDER BOUNDARY</p><h2>Verify before you send.</h2><p class="chapter-description">The working gateway sends only the redacted text you approve. The provider can read that text; the vault key stays in your browser.</p><small>Implemented · user-reviewed redaction</small></article>
+<article id="agent" data-chapter><p class="chapter-label">RESEARCH HORIZON</p><h2>Computation without exposure.</h2><p class="chapter-description">Encrypted inference and secure multi-party computation can extend the privacy boundary. This architecture is a conceptual visualization.</p><small>Conceptual · FHE and MPC inference are not implemented</small></article>
+<article id="reconstruct" data-chapter><p class="chapter-label">AUTHORIZED ENDPOINT</p><h2>The threshold makes it whole.</h2><p class="chapter-description">Select two distinct guardian shares to reconstruct the key locally, then verify the original authenticated ciphertext.</p><small>2-of-3 recovery · AES-GCM integrity verification</small></article>
+<article id="command" data-chapter><p class="chapter-label">INTERACTIVE DEMONSTRATION</p><h2>Take control of the flow.</h2><p class="chapter-description">Create a vault, inspect the outgoing prompt, and test recovery. The cockpit reports events from your current browser session.</p><small>Charts above are illustrative. Live session values appear in the cockpit.</small><a class="chapter-link" href="#workspace">Launch the workspace ↗</a></article>
+</div></section><script type="module" src="./src/journey.mjs"></script>
   <div class="app-shell" id="workspace">
     <header class="header tilt-3d">
       <div class="logo-wrap">
         <div class="logo">VEIL<span>//</span><b>AI</b></div>
         <div class="header-caption">
-          <strong>Private AI Security Cockpit</strong>
+          <strong>Private Intelligence Workspace</strong>
           <small>Split · Protect · Redact · Control</small>
         </div>
       </div>
@@ -133,7 +110,7 @@
           <div class="halo-top"></div>
           <div class="orbit-glow"></div>
           <div class="grid-floor"></div>
-          <canvas id="orb-canvas" aria-label="Interactive 3D guardian crystal constellation"></canvas>
+          <canvas id="orb-canvas" aria-label="Interactive guardian share distribution"></canvas>
           <div class="node-overlay">
             <button id="node-1" class="node-label crystal-hit" aria-label="Select guardian 1"></button>
             <button id="node-2" class="node-label crystal-hit" aria-label="Select guardian 2"></button>
@@ -158,7 +135,7 @@
         <div class="stage-controls">
           <span id="geometry-caption">UNINITIALIZED</span>
           <button id="reset-camera">RESET CAMERA ↗</button>
-          <span class="hint">DRAG · ZOOM · SELECT CRYSTALS</span>
+          <span class="hint">DRAG TO ORBIT · CTRL + SCROLL TO ZOOM</span>
         </div>
       </section>
 
@@ -325,6 +302,7 @@
   <script type="module" src="./src/main.mjs"></script>
 </body>
 </html>
+
 
 
 

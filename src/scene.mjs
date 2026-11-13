@@ -90,3 +90,4 @@ export class Constellation{
 
 
 
+export { mul, trans, scale, rx, ry, rz, perspective };
