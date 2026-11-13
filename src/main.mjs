@@ -157,7 +157,11 @@ function invalidate(){
 
 function changeShard(index){
   if(!(state.shares[index - 1] instanceof Uint8Array)){
-    toast('This guardian is not loaded. Import its share file or generate a new vault.');
+    const anyLoaded = state.shares.some(share => share instanceof Uint8Array);
+    const action = $(anyLoaded ? 'import-shares' : 'create-vault');
+    action.scrollIntoView({block:'center'});
+    action.focus({preventScroll:true});
+    toast(anyLoaded ? 'Import the missing guardian file to select this share.' : 'Initialize the vault or import guardian files to start.');
     return;
   }
   const idx = state.selected.indexOf(index);
@@ -486,3 +490,4 @@ start().catch(error => {
   console.error(error);
   toast('Initialization issue: ' + error.message);
 });
+

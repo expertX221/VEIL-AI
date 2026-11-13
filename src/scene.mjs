@@ -13,7 +13,7 @@ function makeParticles(){const p=[],n=[];for(let i=0;i<220;i++){const angle=Math
 function shader(gl,type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s}
 function program(gl){
   const vert=`attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 uMVP;uniform mat4 uModel;uniform float uPointSize;varying vec3 vNormal;varying vec3 vPosition;void main(){gl_Position=uMVP*vec4(aPosition,1.);gl_PointSize=uPointSize;vNormal=normalize(mat3(uModel)*aNormal);vPosition=aPosition;}`;
-  const frag=`precision mediump float;uniform vec3 uColor;uniform float uAlpha;uniform float uTime;uniform float uStyle;uniform float uBoost;varying vec3 vNormal;varying vec3 vPosition;void main(){if(uStyle>1.5&&uStyle<2.5){vec2 p=gl_PointCoord-vec2(.5);if(length(p)>.5)discard;float a=(1.-length(p)*2.)*.7;gl_FragColor=vec4(uColor,a*uAlpha*uBoost);return;}if(uStyle>.5&&uStyle<1.5){gl_FragColor=vec4(uColor,uAlpha*uBoost);return;}float lambert=max(.12,dot(normalize(vNormal),normalize(vec3(.1,.5,1.))));float edge=pow(1.-abs(dot(normalize(vNormal),vec3(0.,0.,1.))),2.);float scan=.5+.5*sin(vPosition.y*16.+uTime*1.2);vec3 body=uColor*(.18+.72*lambert)+uColor*scan*.1*uBoost+vec3(.18,.65,.96)*edge*.45*uBoost;if(uStyle>2.5)body=uColor*(.22+lambert*.95)+vec3(.38,.65,.9)*edge*.25*uBoost;gl_FragColor=vec4(body,uAlpha);}`;
+  const frag=`precision mediump float;uniform vec3 uColor;uniform float uAlpha;uniform float uTime;uniform float uStyle;uniform float uBoost;varying vec3 vNormal;varying vec3 vPosition;void main(){if(uStyle>1.5&&uStyle<2.5){vec2 p=gl_PointCoord-vec2(.5);if(length(p)>.5)discard;float a=(1.-length(p)*2.)*.7;gl_FragColor=vec4(uColor,a*uAlpha*uBoost);return;}if(uStyle>.5&&uStyle<1.5){gl_FragColor=vec4(uColor,uAlpha*uBoost);return;}float lambert=max(.12,dot(normalize(vNormal),normalize(vec3(.1,.5,1.))));float edge=pow(1.-abs(dot(normalize(vNormal),vec3(0.,0.,1.))),2.);float scan=.5+.5*sin(vPosition.y*16.+uTime*1.2);float highlight=pow(max(0.,dot(reflect(-normalize(vec3(.1,.5,1.)),normalize(vNormal)),vec3(0.,0.,1.))),24.);vec3 body=uColor*(.18+.72*lambert)+uColor*scan*.1*uBoost+vec3(.18,.65,.96)*edge*.45*uBoost;if(uStyle>2.5)body=uColor*(.22+lambert*.95)+vec3(.38,.65,.9)*edge*.25*uBoost;gl_FragColor=vec4(body+vec3(.7,.9,1.)*highlight*.65,uAlpha);}`;
   const prog=gl.createProgram();gl.attachShader(prog,shader(gl,gl.VERTEX_SHADER,vert));gl.attachShader(prog,shader(gl,gl.FRAGMENT_SHADER,frag));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(prog));return prog;
 }
 
@@ -58,6 +58,27 @@ export class Constellation{
     const theme=THEMES[this.mode]||THEMES.balanced;const flashBoost=1+this.flash*.75;const aspect=this.width/Math.max(this.height,1),proj=perspective(Math.PI/3.05,aspect,.1,50),view=trans(0,0,-this.distance+(this.reduced?0:this.cameraOffset*.48)),scene=this.matScene(),vp=mul(proj,view);this.mvp=mul(vp,scene);
     if(this.showParticles) this.draw(this.meshes.particles,scene,vp,theme.particles,.54,2,gl.POINTS,2.2,flashBoost*.95);
     if(this.showRings){gl.depthMask(false);for(let r=0;r<3;r++){const ringRot=mul(scene,mul(ry(this.time*(r%2?.11:-.08)+r*.9),mul(rx(r*.6+.36),scale(1+r*.14,1+r*.14,1+r*.14))));this.draw(this.meshes.ring,ringRot,vp,theme.rings[r],r===1?.35:.4,1,gl.LINE_STRIP,2,flashBoost)}gl.depthMask(true)}
+    if(this.cinematic && (this.chapter<.5 || this.chapter>1.5)){
+      const review=this.chapter>1.5;
+      const spread=Math.max(0,Math.min(1,(this.distance-6.1)/3.1));
+      for(let i=0;i<5;i++){
+        const phase=i*Math.PI*2/5;
+        const spacing=spread*(review?1.6:1.15);
+        const orbit=mul(scene,ry(this.time*.28));
+        const model=mul(orbit,mul(trans(Math.cos(phase)*spacing,(i-2)*(.23+spread*.16),Math.sin(phase)*spacing),mul(rx(review?.15:Math.PI/2),scale(.84+i*.055,.84+i*.055,1))));
+        this.draw(this.meshes.ring,model,vp,theme.rings[i%3],.83,1,gl.LINE_STRIP,2,flashBoost);
+        if(review){
+          const panel=mul(orbit,mul(trans(Math.cos(phase)*spacing,(i-2)*.34,Math.sin(phase)*spacing),scale(.72,.24,.045)));
+          this.draw(this.meshes.crystal,panel,vp,theme.rings[i%3],.83,3,gl.TRIANGLES,2,flashBoost);
+        }
+      }
+      if(!review){
+        const capsule=mul(scene,mul(ry(this.time*.32),scale(.72,1.24,.72)));
+        this.draw(this.meshes.sphere,capsule,vp,theme.inner,.97,3,gl.TRIANGLES,2,flashBoost);
+      }
+      requestAnimationFrame(t=>this.frame(t));
+      return;
+    }
     const split=this.cinematic?Math.max(0,1-Math.abs(this.cameraOffset-1)):0;const core=mul(scene,mul(rz(.17),mul(ry(this.time*.42+this.cameraOffset*.55),scale(1.03-split*.62,1.85-split*1.15,1.03-split*.62))));this.draw(this.meshes.crystal,core,vp,theme.inner,.96,3,gl.TRIANGLES,2,flashBoost);
 
     this.nodeCenters=[];
@@ -65,5 +86,6 @@ export class Constellation{
     requestAnimationFrame(t=>this.frame(t));
   }
 }
+
 
 
