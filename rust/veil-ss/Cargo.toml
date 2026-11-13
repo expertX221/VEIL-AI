@@ -1,0 +1,12 @@
+[package]
+name = "veil-ss"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Educational 2-of-3 Shamir GF(256) WebAssembly key-sharing primitive"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"

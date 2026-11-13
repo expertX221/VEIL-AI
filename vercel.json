@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {"src": "/api/(status|infer)", "dest": "/api/gateway.mjs"},
+    {"src": "/", "dest": "/index.html"},
+    {"handle": "filesystem"},
+    {"src": "/.*", "status": 404}
+  ]
+}

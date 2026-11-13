@@ -1,0 +1,5 @@
+.env
+node_modules/
+rust/veil-ss/target/
+rust/veil-ss/pkg/
+.DS_Store

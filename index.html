@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050b1b">
+  <title>VEIL//AI — Private AI Security Cockpit</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <section class="journey" aria-label="VEIL AI security walkthrough">
+    <nav class="film-nav" aria-label="Walkthrough">
+      <a href="#veil-intro" class="film-brand"><i class="crystal-mark" aria-hidden="true"></i>VEIL AI</a>
+      <div class="film-links"><a href="#veil-intro">Encryption</a><a href="#veil-shares">Key shares</a><a href="#veil-review">AI review</a></div>
+      <a class="film-launch" href="#workspace">Open cockpit</a>
+    </nav>
+    <div class="journey-stage">
+      <div class="film-set film-encryption" aria-hidden="true"></div>
+      <div class="film-set film-shares" aria-hidden="true"></div>
+      <div class="film-set film-review" aria-hidden="true"></div>
+      <canvas aria-label="Rotating crystal. Drag to orbit."></canvas>
+      <div class="film-shade" aria-hidden="true"></div>
+    </div>
+    <div class="journey-progress" aria-hidden="true"><span></span></div>
+    <div class="journey-chapters">
+      <article id="veil-intro" data-chapter>
+        <p class="journey-label">VEIL // AI</p>
+        <h1>Keep the original in the vault.</h1>
+        <p>VEIL AI encrypts your original input in the browser with AES-GCM. Scroll to follow the vault key from encryption to AI review.</p>
+        <a class="journey-action" href="#workspace">Open cockpit</a>
+      </article>
+      <article id="veil-shares" data-chapter>
+        <p class="journey-label">LOCAL VAULT</p>
+        <h2>Two shares unlock the vault.</h2>
+        <p>The browser encrypts the original text with AES-GCM. Any two of the three Shamir shares can reconstruct the vault key.</p>
+        <a class="journey-action" href="#vault">Try the vault</a>
+      </article>
+      <article id="veil-review" data-chapter>
+        <p class="journey-label">PROVIDER BOUNDARY</p>
+        <h2>Review what the model sees.</h2>
+        <p>Approve the redacted prompt before sending it. The provider can read that prompt. The vault key and original encrypted input stay in the browser during the request.</p>
+        <a class="journey-action" href="#chat">Try secure chat</a>
+      </article>
+    </div>
+  </section>
+  <script type="module" src="./src/journey.mjs"></script>
+  <div class="app-shell" id="workspace">
+    <header class="header tilt-3d">
+      <div class="logo-wrap">
+        <div class="logo">VEIL<span>//</span><b>AI</b></div>
+        <div class="header-caption">
+          <strong>Private AI Security Cockpit</strong>
+          <small>Split · Protect · Redact · Control</small>
+        </div>
+      </div>
+      <div class="header-hud">
+        <div class="hud-chip secure"><i class="dot"></i><span><strong id="service-status">LOCAL SECURE SESSION</strong><small>Keys stay on this device</small></span></div>
+        <div class="hud-chip"><span class="chip-icon">◉</span><span><strong>Private Mode</strong><small>Loopback / Review-gated</small></span></div>
+        <button id="reset" class="icon-button" title="Reset session">↺</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <a href="#workspace" class="nav-link active tilt-3d"><span class="nav-icon">⌂</span><span>Cockpit</span></a>
+      <a href="#chat" class="nav-link tilt-3d"><span class="nav-icon">▤</span><span>Secure Chat</span></a>
+      <a href="#vault" class="nav-link tilt-3d"><span class="nav-icon">◇</span><span>Key &amp; Vault</span></a>
+      <a href="#pipeline" class="nav-link tilt-3d"><span class="nav-icon">⬡</span><span>Pipeline</span></a>
+      <a href="#telemetry" class="nav-link tilt-3d"><span class="nav-icon">▥</span><span>Activity</span></a>
+      <a href="#footer" class="nav-link tilt-3d"><span class="nav-icon">☷</span><span>Settings</span></a>
+      <div class="nav-foot panel tilt-3d">
+        <strong>LOCAL-FIRST SECURITY</strong>
+        <small>No key material leaves the device.</small>
+      </div>
+    </aside>
+
+    <main class="dashboard">
+      <section class="guardian panel tilt-3d" id="vault">
+        <header class="panel-header">
+          <div class="title-mark">♧</div>
+          <div>
+            <h2>Key Shares / Guardians</h2>
+            <p>Shamir Secret Sharing (Threshold)</p>
+          </div>
+        </header>
+
+        <div class="share-list" id="share-list">
+          <button class="share-card" data-share="1">
+            <span class="gem cyan-gem">◆</span>
+            <span class="share-info"><strong>Guardian A</strong><small>Share A · (1/3)</small><span class="micro-bar"><i></i></span></span>
+            <span class="share-check">○</span>
+          </button>
+          <button class="share-card" data-share="2">
+            <span class="gem violet-gem">◆</span>
+            <span class="share-info"><strong>Guardian B</strong><small>Share B · (2/3)</small><span class="micro-bar"><i></i></span></span>
+            <span class="share-check">○</span>
+          </button>
+          <button class="share-card" data-share="3">
+            <span class="gem pink-gem">◆</span>
+            <span class="share-info"><strong>Guardian C</strong><small>Share C · (3/3)</small><span class="micro-bar"><i></i></span></span>
+            <span class="share-check">○</span>
+          </button>
+        </div>
+
+        <div class="threshold-box">
+          <div>
+            <span class="micro-heading">RECONSTRUCTION THRESHOLD</span>
+            <strong><span id="metric-threshold">0</span>-of-3</strong>
+            <p id="threshold-hint">Any two shares can reconstruct the key</p>
+            <small id="threshold-status">NOT GENERATED</small>
+          </div>
+          <div class="ring-lock">♧</div>
+          <div class="progress-track"><div id="threshold-fill"></div></div>
+        </div>
+
+        <div class="vault-buttons">
+          <button class="primary-button" id="create-vault">✦ INITIALIZE SECURE VAULT ↗</button>
+          <button class="secondary-button" id="export-share" disabled>EXPORT NEXT GUARDIAN FILE ↓</button>
+          <div class="button-row">
+            <button class="secondary-button" id="import-shares">IMPORT SHARES ↑</button>
+            <button class="secondary-button" id="import-envelope">IMPORT ENVELOPE ↑</button>
+          </div>
+        </div>
+        <input id="share-file-picker" type="file" accept=".json,application/json" multiple hidden>
+        <input id="envelope-file-picker" type="file" accept=".json,application/json" hidden>
+      </section>
+
+      <section class="stage panel tilt-3d" id="pipeline">
+        <div class="stage-headline">
+          <span class="eyebrow-label">SPLIT-KEY SECRET SHARING</span>
+          <span class="eyebrow-live">◈ LIVE WEBGL</span>
+        </div>
+        <div class="orb-stage" id="orb-stage">
+          <div class="halo-top"></div>
+          <div class="orbit-glow"></div>
+          <div class="grid-floor"></div>
+          <canvas id="orb-canvas" aria-label="Interactive 3D guardian crystal constellation"></canvas>
+          <div class="node-overlay">
+            <button id="node-1" class="node-label">A</button>
+            <button id="node-2" class="node-label">B</button>
+            <button id="node-3" class="node-label">C</button>
+          </div>
+          <div class="stage-center">
+            <span>CRYPTOGRAPHIC CORE</span>
+            <b id="center-state">VAULT OFFLINE</b>
+            <small id="center-caption">Initialize your local vault</small>
+          </div>
+          <div class="stage-side side-left">X 00.319<br>Y 18.217<br>Z 04.001</div>
+          <div class="stage-side side-right">Holo Space<br>3D Control<br>Interactive</div>
+          <div class="platform"><div class="platform-ring"></div><div class="platform-ring inner"></div></div>
+        </div>
+        <div class="stage-caption">
+          <span class="cube-symbol">⬡</span>
+          <div>
+            <strong>Split-Key Secret Sharing</strong>
+            <small>Shamir (2-of-3) · AES-256-GCM · Tamper-Aware</small>
+          </div>
+        </div>
+        <div class="stage-controls">
+          <span id="geometry-caption">UNINITIALIZED</span>
+          <button id="reset-camera">RESET CAMERA ↗</button>
+          <span class="hint">DRAG · ZOOM · SELECT CRYSTALS</span>
+        </div>
+      </section>
+
+      <section class="right-stack">
+        <div class="workflow panel tilt-3d">
+          <header class="panel-header">
+            <div class="title-mark">♧</div>
+            <div>
+              <h2>Encryption Workflow</h2>
+              <p>From private input to provider-visible prompt</p>
+            </div>
+          </header>
+          <div class="workflow-steps">
+            <div class="step complete"><span>♧</span><strong>Encrypt</strong></div>
+            <b>→</b>
+            <div class="step complete"><span>◉</span><strong>Redact</strong></div>
+            <b>→</b>
+            <div class="step selected"><span>▤</span><strong>Review<br>Outbound</strong></div>
+            <b>→</b>
+            <div class="step"><span>▱</span><strong>Provider<br>View</strong></div>
+            <b>→</b>
+            <div class="step"><span>↻</span><strong>Recover</strong></div>
+          </div>
+        </div>
+
+        <div class="prompt-panel panel tilt-3d" id="chat">
+          <header class="panel-header">
+            <div class="title-mark">▤</div>
+            <div>
+              <h2>Secure Prompt</h2>
+              <p>Compose, protect, and review before sending</p>
+            </div>
+            <span id="inference-mode" class="ready-pill">LOCAL DEMO</span>
+          </header>
+
+          <div class="prompt-hud">
+            <div class="hud-stat"><small>SECRET MARKERS</small><strong id="secret-count">0</strong></div>
+            <div class="hud-stat"><small>PROVIDER WORDS</small><strong id="provider-words">0</strong></div>
+            <div class="hud-stat"><small>REVIEW STATE</small><strong id="review-state">IDLE</strong></div>
+          </div>
+
+          <textarea id="prompt" spellcheck="false" aria-label="Private prompt">Analyze the customer data for [[secret:Acme Industries]] and summarize the [[secret:9988776655]] activity from [[secret:Jan 1, 2024 - Dec 31, 2024]]. Do not include any private internal details in the output.</textarea>
+
+          <div class="compare-head"><span>♙ &nbsp; Local Secret Vault</span><span>⊙ &nbsp; Provider-Visible Prompt</span></div>
+          <div class="comparison">
+            <div>
+              <small>TRUE, FULL-CONTEXT PROMPT</small>
+              <div class="preview private-preview">Encrypt locally to see the protected ciphertext below.</div>
+            </div>
+            <span class="compare-arrow">»</span>
+            <div>
+              <small>REDACTED, USER-APPROVED</small>
+              <div id="provider-view" class="preview provider-preview">Only marked secrets will be replaced. All other text is visible to the provider.</div>
+            </div>
+          </div>
+
+          <div class="prompt-controls">
+            <button id="encrypt" class="secondary-button">ENCRYPT &amp; PREVIEW</button>
+            <button id="run-demo" class="primary-button">RUN SAFE DEMO ↗</button>
+            <button id="send-provider" class="primary-button" disabled>SEND TO AI ↗</button>
+          </div>
+          <div class="advanced-tools">
+            <button id="verify-decrypt" class="secondary-button" disabled>VERIFY DECRYPTION ✓</button>
+            <button id="export-envelope" class="secondary-button" disabled>EXPORT ENVELOPE ↓</button>
+          </div>
+
+          <div class="response-box">
+            <header>✧ AI RESPONSE <small id="response-origin">NO RUN YET</small></header>
+            <p id="response">The simulated response or real provider output will appear here.</p>
+          </div>
+        </div>
+
+        <div class="control-grid">
+          <section class="control-panel panel tilt-3d">
+            <header class="panel-header compact">
+              <div class="title-mark">◎</div>
+              <div>
+                <h2>Holographic Control Deck</h2>
+                <p>Make the cockpit feel alive</p>
+              </div>
+            </header>
+            <div class="control-stack">
+              <label class="toggle-row"><span>AUTO ROTATE</span><input type="checkbox" id="scene-auto" checked></label>
+              <label class="toggle-row"><span>ORBIT RINGS</span><input type="checkbox" id="scene-rings" checked></label>
+              <label class="toggle-row"><span>PARTICLE CLOUD</span><input type="checkbox" id="scene-particles" checked></label>
+              <label class="slider-row"><span>GLOW INTENSITY</span><input id="scene-intensity" type="range" min="60" max="180" value="110"></label>
+              <label class="select-row"><span>VISUAL MODE</span>
+                <select id="scene-mode">
+                  <option value="balanced">Balanced</option>
+                  <option value="defense">Defense</option>
+                  <option value="alert">Alert</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="template-panel panel tilt-3d">
+            <header class="panel-header compact">
+              <div class="title-mark">◌</div>
+              <div>
+                <h2>Prompt Presets</h2>
+                <p>Demo-ready scenarios for judges</p>
+              </div>
+            </header>
+            <div class="template-list">
+              <button class="template-button" data-template="briefing">Executive briefing</button>
+              <button class="template-button" data-template="incident">Incident response</button>
+              <button class="template-button" data-template="compliance">Compliance review</button>
+            </div>
+            <div class="template-note">Templates automatically include secret markers so the redaction flow is easy to demonstrate live.</div>
+          </section>
+        </div>
+      </section>
+
+      <section class="bottom-status panel tilt-3d">
+        <header class="panel-header">
+          <div class="title-mark">⬡</div>
+          <div>
+            <h2>Security &amp; System Status</h2>
+            <p>Cryptography, integrity and session state at a glance</p>
+          </div>
+        </header>
+        <div class="status-cards">
+          <div class="status-card"><span>♙</span><strong>AES-256-GCM</strong><small>Data Encryption</small></div>
+          <div class="status-card"><span>◇</span><strong>Shamir 2-of-3</strong><small>Key Sharing</small></div>
+          <div class="status-card"><span>⌁</span><strong>Tamper Detection</strong><small>Integrity Verification</small></div>
+          <div class="status-card"><span>▤</span><strong>Session State</strong><small id="metric-state">NOT INITIALIZED</small></div>
+          <div class="status-card"><span>⬡</span><strong>Trust Boundary</strong><small>Local Vault → AI</small></div>
+        </div>
+        <div class="status-tools">
+          <span>SECURITY CHECKPOINTS <b id="trust-score">0</b> / 03</span>
+          <button id="tamper-test" class="secondary-button" disabled>SIMULATE TAMPER ATTACK ↗</button>
+        </div>
+      </section>
+
+      <section class="telemetry panel tilt-3d" id="telemetry">
+        <header class="panel-header">
+          <div class="title-mark">◷</div>
+          <div>
+            <h2>Activity Timeline</h2>
+            <p>Key security events (this session)</p>
+          </div>
+        </header>
+        <div id="events" class="event-list" aria-live="polite">
+          <div class="event"><span class="event-mark"></span><div><strong>Workspace ready</strong><small>Initialize a vault to begin.</small></div><time>—</time></div>
+        </div>
+        <div class="activity-note">Sensitive values must be explicitly marked. Standard hosted LLMs can read any text you approve and transmit.</div>
+      </section>
+
+      <section class="cipher-panel panel tilt-3d">
+        <div class="data-window-head">CIPHERTEXT / ENCRYPTED AT REST <button id="copy-cipher">COPY ↗</button></div>
+        <pre id="ciphertext">Awaiting vault initialization and encryption...</pre>
+      </section>
+
+      <footer id="footer" class="footer">
+        <span>VEIL//AI</span>
+        <span>MATHEMATICS FOR SYSTEMS SECURITY</span>
+        <span>LOCAL KEY CUSTODY · TRANSPARENT TRUST</span>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="./src/main.mjs"></script>
+</body>
+</html>
+
+
+
