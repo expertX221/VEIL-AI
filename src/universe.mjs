@@ -60,6 +60,10 @@ export class Universe extends Constellation {
         const angle=i*Math.PI*2/3+time*.11;
         const p=[Math.cos(angle)*(1.1+split),Math.sin(angle)*(1.1+split),.2];
         sphere(p,.18,palette[i]);
+        for(let tail=0;tail<12;tail++){
+          const t=((time*.25+i/3-tail*.014)%1+1)%1;
+          sphere([p[0]*t,p[1]*t+Math.sin(t*Math.PI)*.45,p[2]*t],.035*(1-tail/15),palette[i]);
+        }
         this.ring(mul(model,mul(trans(...p),scale(.18,.18,.18))),palette[i],.7);
         if(!this.cinematic){
           const screen=this.project(p,mul(this.vp,model));
@@ -139,3 +143,4 @@ export class Universe extends Constellation {
     requestAnimationFrame(t=>this.frame(t));
   }
 }
+
